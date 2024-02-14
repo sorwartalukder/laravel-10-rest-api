@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,17 +29,28 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
+        /**
+         * @var $user App\Models\User
+         */
 
-        $request->session()->invalidate();
+        $user = Auth::guard('sanctum')->user();
 
-        $request->session()->regenerateToken();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
 
-        return response()->noContent();
+        try {
+            // Revoke all tokens for the authenticated user
+            $user->tokens()->delete();
+        } catch (\Exception $e) {
+            // Log the exception for investigation
+            Log::error('Token revocation failed: ' . $e->getMessage());
+
+            return response()->json(['error' => 'Unable to revoke tokens'], 500);
+        }
+
+        return response()->json(['message' => 'Tokens revoked successfully']);
     }
 }

@@ -23,7 +23,7 @@ class PostCreateRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:posts'],
+            // 'slug' => ['required', 'string', 'max:255', 'unique:posts'],
             'content' => ['required', 'string'],
             'user_id' => ['required', 'integer', 'exists:users,id']
         ];

@@ -23,7 +23,7 @@ class PostUpdateRequest extends FormRequest
     {
         return [
             'title' => ['nullable', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:posts'],
+            // 'slug' => ['nullable', 'string', 'max:255', 'unique:posts'],
             'content' => ['nullable', 'string'],
         ];
     }
